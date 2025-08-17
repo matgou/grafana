@@ -37,6 +37,7 @@ export interface Aggregation {
 
 export interface CloudMonitoringOptions extends DataSourceOptions {
   gceDefaultProject?: string;
+  universeDomain?: string;
   enableSecureSocksProxy?: boolean;
 }
 

@@ -139,6 +139,7 @@ type datasourceInfo struct {
 	defaultProject     string
 	clientEmail        string
 	tokenUri           string
+	universeDomain     string
 	services           map[string]datasourceService
 	privateKey         string
 }
@@ -148,6 +149,7 @@ type datasourceJSONData struct {
 	DefaultProject     string `json:"defaultProject"`
 	ClientEmail        string `json:"clientEmail"`
 	TokenURI           string `json:"tokenUri"`
+	UniverseDomain     string `json:"universeDomain"`
 }
 
 type datasourceService struct {
@@ -175,6 +177,7 @@ func newInstanceSettings(httpClientProvider httpclient.Provider) datasource.Inst
 			defaultProject:     jsonData.DefaultProject,
 			clientEmail:        jsonData.ClientEmail,
 			tokenUri:           jsonData.TokenURI,
+			universeDomain:     jsonData.UniverseDomain,
 			services:           map[string]datasourceService{},
 		}
 
@@ -188,6 +191,7 @@ func newInstanceSettings(httpClientProvider httpclient.Provider) datasource.Inst
 			return nil, err
 		}
 
+		routes := routes(dsInfo.universeDomain)
 		for name, info := range routes {
 			client, err := newHTTPClient(dsInfo, opts, &httpClientProvider, name)
 			if err != nil {

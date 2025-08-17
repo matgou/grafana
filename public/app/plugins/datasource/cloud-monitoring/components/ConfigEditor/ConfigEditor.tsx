@@ -4,7 +4,7 @@ import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
 import { ConfigSection, DataSourceDescription } from '@grafana/experimental';
 import { ConnectionConfig } from '@grafana/google-sdk';
 import { reportInteraction, config } from '@grafana/runtime';
-import { Divider, SecureSocksProxySettings } from '@grafana/ui';
+import { Divider, SecureSocksProxySettings, Field, Input } from '@grafana/ui';
 
 import { CloudMonitoringOptions, CloudMonitoringSecureJsonData } from '../../types/types';
 
@@ -33,6 +33,34 @@ export class ConfigEditor extends PureComponent<Props> {
         />
         <Divider />
         <ConnectionConfig {...this.props} onOptionsChange={this.handleOnOptionsChange}></ConnectionConfig>
+        <Divider />
+        <ConfigSection
+          title="Additional settings"
+          description="Additional settings are optional settings that can be configured for more control over your data source."
+          isCollapsible={true}
+          isInitiallyOpen={options.jsonData.universeDomain !== undefined}
+        >
+          <Field
+            label="Universe Domain"
+            description="The universe domain to use for the API. If not specified, the default domain is used."
+          >
+            <Input
+              width={60}
+              id="universeDomain"
+              value={options.jsonData.universeDomain}
+              placeholder="googleapis.com"
+              onChange={(e) =>
+                onOptionsChange({
+                  ...options,
+                  jsonData: {
+                    ...options.jsonData,
+                    universeDomain: e.currentTarget.value,
+                  },
+                })
+              }
+            />
+          </Field>
+        </ConfigSection>
         {config.secureSocksDSProxyEnabled && (
           <>
             <Divider />

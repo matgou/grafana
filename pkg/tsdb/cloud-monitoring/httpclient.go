@@ -20,20 +20,27 @@ type routeInfo struct {
 	scopes []string
 }
 
-var routes = map[string]routeInfo{
-	cloudMonitor: {
-		method: "GET",
-		url:    "https://monitoring.googleapis.com",
-		scopes: []string{cloudMonitorScope},
-	},
-	resourceManager: {
-		method: "GET",
-		url:    "https://cloudresourcemanager.googleapis.com",
-		scopes: []string{resourceManagerScope},
-	},
+var routes = func(universeDomain string) map[string]routeInfo {
+	if universeDomain == "" {
+		universeDomain = "googleapis.com"
+	}
+
+	return map[string]routeInfo{
+		cloudMonitor: {
+			method: "GET",
+			url:    "https://monitoring." + universeDomain,
+			scopes: []string{cloudMonitorScope},
+		},
+		resourceManager: {
+			method: "GET",
+			url:    "https://cloudresourcemanager." + universeDomain,
+			scopes: []string{resourceManagerScope},
+		},
+	}
 }
 
 func getMiddleware(model *datasourceInfo, routePath string) (httpclient.Middleware, error) {
+	routes := routes(model.universeDomain)
 	providerConfig := tokenprovider.Config{
 		RoutePath:         routePath,
 		RouteMethod:       routes[routePath].method,
