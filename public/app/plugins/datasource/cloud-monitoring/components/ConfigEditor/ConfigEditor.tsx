@@ -33,6 +33,26 @@ export class ConfigEditor extends PureComponent<Props> {
         />
         <Divider />
         <ConnectionConfig {...this.props} onOptionsChange={this.handleOnOptionsChange}></ConnectionConfig>
+        <ConfigSection
+          title="Universe Domain (optionnel)"
+          description="Spécifiez le domaine d'univers Google Cloud pour les environnements souverains (ex: europe.googleapis.com). Laisser vide pour utiliser googleapis.com."
+        >
+          <div className="gf-form-group">
+            <div className="gf-form">
+              <label className="gf-form-label width-16">Universe Domain</label>
+              <input
+                type="text"
+                className="gf-form-input"
+                placeholder="googleapis.com"
+                value={options.jsonData.universeDomain || ''}
+                onChange={e => {
+                  const jsonData = { ...options.jsonData, universeDomain: e.currentTarget.value };
+                  onOptionsChange({ ...options, jsonData });
+                }}
+              />
+            </div>
+          </div>
+        </ConfigSection>
         {config.secureSocksDSProxyEnabled && (
           <>
             <Divider />

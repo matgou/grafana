@@ -1,3 +1,11 @@
+  /**
+   * Retourne le domaine d'univers Google Cloud à utiliser pour les appels API.
+   * Par défaut : googleapis.com
+   */
+  getUniverseDomain(): string {
+    const { universeDomain } = this.instanceSettings.jsonData;
+    return universeDomain && universeDomain.trim() !== '' ? universeDomain.trim() : 'googleapis.com';
+  }
 import { chunk, flatten, isString, isArray, has, get, omit } from 'lodash';
 import { from, lastValueFrom, Observable, of } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
@@ -193,23 +201,26 @@ export default class CloudMonitoringDatasource extends DataSourceWithBackend<
     if (!projectName) {
       return [];
     }
-
-    return this.getResource(`metricDescriptors/v3/projects/${this.templateSrv.replace(projectName)}/metricDescriptors`);
+    // Prépare le paramètre universeDomain pour le backend (si besoin)
+    const universeDomain = this.getUniverseDomain();
+    // TODO : Si le backend doit utiliser ce paramètre, il faut l'ajouter à la requête
+    return this.getResource(`metricDescriptors/v3/projects/${this.templateSrv.replace(projectName)}/metricDescriptors`, { universeDomain });
   }
 
   async filterMetricsByType(projectName: string, filter: string): Promise<MetricDescriptor[]> {
     if (!projectName) {
       return [];
     }
-
+    const universeDomain = this.getUniverseDomain();
     return this.getResource(
       `metricDescriptors/v3/projects/${this.templateSrv.replace(projectName)}/metricDescriptors`,
-      { filter: `metric.type : "${filter}"` }
+      { filter: `metric.type : "${filter}"`, universeDomain }
     );
   }
 
   async getSLOServices(projectName: string): Promise<Array<SelectableValue<string>>> {
-    return this.getResource(`services/v3/projects/${this.templateSrv.replace(projectName)}/services?pageSize=1000`);
+    const universeDomain = this.getUniverseDomain();
+    return this.getResource(`services/v3/projects/${this.templateSrv.replace(projectName)}/services?pageSize=1000`, { universeDomain });
   }
 
   async getServiceLevelObjectives(projectName: string, serviceId: string): Promise<Array<SelectableValue<string>>> {
@@ -217,11 +228,13 @@ export default class CloudMonitoringDatasource extends DataSourceWithBackend<
       return Promise.resolve([]);
     }
     let { projectName: p, serviceId: s } = this.interpolateProps({ projectName, serviceId });
-    return this.getResource(`slo-services/v3/projects/${p}/services/${s}/serviceLevelObjectives`);
+    const universeDomain = this.getUniverseDomain();
+    return this.getResource(`slo-services/v3/projects/${p}/services/${s}/serviceLevelObjectives`, { universeDomain });
   }
 
   getProjects(): Promise<Array<SelectableValue<string>>> {
-    return this.getResource(`projects`);
+    const universeDomain = this.getUniverseDomain();
+    return this.getResource(`projects`, { universeDomain });
   }
 
   migrateMetricTypeFilter(metricType: string, filters?: string[]) {

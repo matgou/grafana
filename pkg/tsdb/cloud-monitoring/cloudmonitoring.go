@@ -152,6 +152,7 @@ type datasourceJSONData struct {
 	TokenURI                    string `json:"tokenUri"`
 	UsingImpersonation          bool   `json:"usingImpersonation"`
 	ServiceAccountToImpersonate string `json:"serviceAccountToImpersonate"`
+	UniverseDomain              string `json:"universeDomain"`
 }
 
 type datasourceService struct {
@@ -194,13 +195,23 @@ func newInstanceSettings(httpClientProvider httpclient.Provider) datasource.Inst
 			return nil, err
 		}
 
+		// Détermine le domaine d'univers à utiliser
+		universeDomain := strings.TrimSpace(jsonData.UniverseDomain)
+		if universeDomain == "" {
+			universeDomain = "googleapis.com"
+		}
 		for name, info := range routes {
+			// Remplace le domaine dans l'URL si besoin
+			url := info.url
+			if universeDomain != "googleapis.com" {
+				url = strings.Replace(url, "googleapis.com", universeDomain, 1)
+			}
 			client, err := newHTTPClient(dsInfo, opts, &httpClientProvider, name)
 			if err != nil {
 				return nil, err
 			}
 			dsInfo.services[name] = datasourceService{
-				url:    info.url,
+				url:    url,
 				client: client,
 			}
 		}

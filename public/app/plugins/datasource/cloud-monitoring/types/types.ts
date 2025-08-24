@@ -38,6 +38,11 @@ export interface Aggregation {
 export interface CloudMonitoringOptions extends DataSourceOptions {
   gceDefaultProject?: string;
   enableSecureSocksProxy?: boolean;
+  /**
+   * Domaine d'univers Google Cloud (ex: googleapis.com, europe.googleapis.com, etc.)
+   * Par défaut : googleapis.com
+   */
+  universeDomain?: string;
 }
 
 export interface CloudMonitoringSecureJsonData extends DataSourceSecureJsonData {}
